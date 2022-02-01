@@ -1,5 +1,6 @@
 import config from "config"
 
+import algolia from "lib/apis/algolia"
 import convection from "lib/apis/convection"
 import delta from "lib/apis/delta"
 import diffusion from "lib/apis/diffusion"
@@ -40,6 +41,18 @@ export interface DataLoaderKey {
 
 export default (opts) => ({
   // Unauthenticated loaders
+
+  /**
+   * The Algolia loaders produced by this factory _will_ cache all responses to memcache.
+   */
+  algoliaLoaderWithoutAuthenticationFactory: apiLoaderWithoutAuthenticationFactory(
+    algolia,
+    "algolia",
+    {
+      requestIDs: opts.requestIDs,
+      userAgent: opts.userAgent,
+    }
+  ),
 
   /**
    * The Delta loaders produced by this factory _will_ cache all responses to memcache.

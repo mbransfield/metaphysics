@@ -19,6 +19,8 @@ import {
 } from "schema/v2/search/SearchAggregation"
 import { map } from "lodash"
 import { SearchResolver } from "./SearchResolver"
+import { AlgoliaSearchResolver } from "./AlgoliaSearchResolver"
+import config from "config"
 
 export const SearchMode = new GraphQLEnumType({
   name: "SearchMode",
@@ -77,7 +79,14 @@ export const Search: GraphQLFieldConfig<void, ResolverContext> = {
   description: "Global search",
   args: searchArgs,
   resolve: (_source, args, context, info) => {
-    const resolver = new SearchResolver(args, context, info)
+    const { ENABLE_ALGOLIA_SEARCH_RESOLUTION } = config
+    let resolver
+
+    if (ENABLE_ALGOLIA_SEARCH_RESOLUTION) {
+      resolver = new AlgoliaSearchResolver(args, context)
+    } else {
+      resolver = new SearchResolver(args, context, info)
+    }
 
     return resolver.resolve()
   },

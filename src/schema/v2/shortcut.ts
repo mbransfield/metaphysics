@@ -5,17 +5,11 @@ import {
   GraphQLFieldConfig,
   GraphQLID,
   GraphQLInputObjectType,
-  GraphQLUnionType,
 } from "graphql"
 import { ResolverContext } from "types/graphql"
 import { IDFields } from "./object_identification"
 
 import { mutationWithClientMutationId } from "graphql-relay"
-import {
-  GravityMutationErrorType,
-  formatGravityError,
-} from "lib/gravityErrorHandler"
-import { InternalIDFields } from "./object_identification"
 
 export interface Shortcut {
   id: string

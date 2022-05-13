@@ -125,7 +125,7 @@ import { SearchCriteriaLabel } from "./searchCriteriaLabel"
 import { sendIdentityVerificationEmailMutation } from "./me/sendIdentityVerficationEmailMutation"
 import { requestPriceEstimateMutation } from "./me/requestPriceEstimate"
 import { PreviewSavedSearchField } from "./previewSavedSearch"
-import { shortcut } from "./shortcut"
+import { createShortcutMutation, shortcut } from "./shortcut"
 import { channel } from "./article/channel"
 import { departments, job, jobs } from "./jobs"
 import { RecentlySoldArtworks } from "./recentlySoldArtworks"
@@ -253,6 +253,7 @@ export default new GraphQLSchema({
       createCreditCard: createCreditCardMutation,
       createGeminiEntryForAsset: CreateGeminiEntryForAsset,
       createUserInterest: createUserInterestMutation,
+      createShortcut: createShortcutMutation,
       deleteCreditCard: deleteCreditCardMutation,
       deleteMyAccountMutation: deleteUserAccountMutation,
       deleteUserInterest: deleteUserInterestMutation,

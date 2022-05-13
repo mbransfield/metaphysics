@@ -72,6 +72,7 @@ export default (accessToken, userID, opts) => {
       {},
       { method: "POST" }
     ),
+    createShortcutLoader: gravityLoader("shortcut", {}, { method: "POST" }),
     createUserInterestLoader: gravityLoader(
       "me/user_interest",
       {},

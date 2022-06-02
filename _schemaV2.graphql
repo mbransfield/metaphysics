@@ -921,6 +921,12 @@ type Article implements Node {
     # Number of articles to return
     size: Int = 3
   ): [Article!]!
+
+  # Description to favor for meta description
+  searchDescription: String
+
+  # Title to favor for document titles
+  searchTitle: String
   sections: [ArticleSections!]!
   series: ArticleSeries
   seriesArticle: Article
@@ -928,6 +934,8 @@ type Article implements Node {
   sponsor: ArticleSponsor
   thumbnailImage: Image
   thumbnailTeaser: String
+
+  # Title to favor for links to article
   thumbnailTitle: String
   tier: Int
   title: String
@@ -1130,6 +1138,7 @@ type ArticleSponsor {
 }
 
 type Artist implements EntityWithFilterArtworksConnectionInterface & Node & Searchable {
+  activeSecondaryMarket: Boolean
   alternateNames: [String]
   articlesConnection(
     after: String
@@ -2307,6 +2316,9 @@ type AttributionClass {
   # Shortest form of attribution class display
   name: String
 
+  # Short descriptive phrase for attribution class without punctuation as array of strings
+  shortArrayDescription: [String]
+
   # Short descriptive phrase for attribution class without punctuation
   shortDescription: String
 }
@@ -3410,6 +3422,7 @@ type CommerceBuyOrder implements CommerceOrder {
   ): CommerceLineItemConnection
   mode: CommerceOrderModeEnum
   orderHistory: [CommerceOrderEventUnion!]!
+  paymentMethod: CommercePaymentMethodEnum
   requestedFulfillment: CommerceRequestedFulfillmentUnion
   seller: CommerceOrderPartyUnion!
   sellerDetails: OrderParty
@@ -4161,6 +4174,7 @@ type CommerceOfferOrder implements CommerceOrder {
     thousand: String = ","
   ): String
   orderHistory: [CommerceOrderEventUnion!]!
+  paymentMethod: CommercePaymentMethodEnum
   requestedFulfillment: CommerceRequestedFulfillmentUnion
   seller: CommerceOrderPartyUnion!
   sellerDetails: OrderParty
@@ -4360,6 +4374,7 @@ interface CommerceOrder {
   ): CommerceLineItemConnection
   mode: CommerceOrderModeEnum
   orderHistory: [CommerceOrderEventUnion!]!
+  paymentMethod: CommercePaymentMethodEnum
   requestedFulfillment: CommerceRequestedFulfillmentUnion
   seller: CommerceOrderPartyUnion!
   sellerDetails: OrderParty
@@ -4666,6 +4681,23 @@ type CommercePartner {
   type: String!
 }
 
+enum CommercePaymentMethodEnum {
+  # ACH Transfer
+  ACH_TRANSFER
+
+  # Credit Card
+  CREDIT_CARD
+
+  # Other
+  OTHER
+
+  # US Bank Account
+  US_BANK_ACCOUNT
+
+  # Wire Transfer
+  WIRE_TRANSFER
+}
+
 type CommercePickup {
   fulfillmentType: String!
   phoneNumber: String
@@ -4788,6 +4820,8 @@ input CommerceSetPaymentInput {
   clientMutationId: String
   creditCardId: String
   id: ID!
+  paymentMethod: CommercePaymentMethodEnum
+  paymentMethodId: String
   setupIntentId: String
 }
 
@@ -4939,6 +4973,7 @@ type CommerceShippingQuote {
     # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     timezone: String
   ): String!
+  currencyCode: String!
   displayName: String!
   id: ID!
   isSelected: Boolean!

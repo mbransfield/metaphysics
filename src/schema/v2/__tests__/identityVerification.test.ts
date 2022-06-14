@@ -16,6 +16,8 @@ describe("IdentityVerification type", () => {
         "Mon Feb 10 2020 00:00:00 GMT-0500 (Eastern Standard Time)",
       user_id: "user1",
       created_at: "",
+      name: "",
+      email: "",
     }
 
     const query = `
@@ -55,6 +57,8 @@ describe("IdentityVerification type", () => {
         "Mon Feb 10 2020 00:00:00 GMT-0500 (Eastern Standard Time)",
       user_id: "user1",
       created_at: "",
+      name: "",
+      email: "",
     }
 
     const gravityScanReference: IdentityVerificationScanReferenceGravityResponse = {
@@ -78,6 +82,10 @@ describe("IdentityVerification type", () => {
       created_at: "",
     }
 
+    const gravityUser = {
+      email: "user1@foo.com",
+    }
+
     const query = gql`
       {
         identityVerificationsConnection(userId: "user1", page: 1) {
@@ -89,6 +97,9 @@ describe("IdentityVerification type", () => {
               }
               overrides {
                 newState
+                creator {
+                  email
+                }
               }
             }
           }
@@ -108,13 +119,14 @@ describe("IdentityVerification type", () => {
           Promise.resolve([gravityScanReference]),
         identityVerificationOverridesLoader: () =>
           Promise.resolve([gravityOverride]),
+        userByIDLoader: () => Promise.resolve(gravityUser),
       }
     )
 
     expect(identityVerificationsConnection.edges[0].node).toEqual({
       state: "pending",
       scanReferences: [{ result: "failed" }],
-      overrides: [{ newState: "passed" }],
+      overrides: [{ newState: "passed", creator: { email: "user1@foo.com" } }],
     })
   })
 
@@ -126,6 +138,8 @@ describe("IdentityVerification type", () => {
         "Mon Feb 10 2020 00:00:00 GMT-0500 (Eastern Standard Time)",
       user_id: "user1",
       created_at: "",
+      name: "",
+      email: "",
     }
 
     const query = gql`

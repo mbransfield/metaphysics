@@ -12,6 +12,7 @@ import {
   paginationResolver,
 } from "schema/v2/fields/pagination"
 import { InternalIDFields } from "schema/v2/object_identification"
+import { UserField } from "schema/v2/user"
 import dateField, { date, formatDate } from "./fields/date"
 import { CursorPageable, pageable } from "relay-cursor-paging"
 import { convertConnectionArgsToGravityArgs } from "lib/helpers"
@@ -22,6 +23,8 @@ export type IdentityVerificationGravityResponse = {
   invitation_expires_at: string
   user_id: string
   created_at: string
+  name: string
+  email: string
 }
 
 export type IdentityVerificationOverrideGravityResponse = {
@@ -84,6 +87,13 @@ export const IdentityVerificationOverrideType = new GraphQLObjectType<
       resolve: ({ user_id }) => user_id,
     },
     createdAt: date(({ created_at }) => created_at),
+    creator: {
+      type: UserField.type,
+      resolve: ({ user_id }, _args, { userByIDLoader }) => {
+        if (!userByIDLoader) return
+        return userByIDLoader(user_id).catch(() => null)
+      },
+    },
   },
 })
 
@@ -136,6 +146,16 @@ export const IdentityVerificationType = new GraphQLObjectType<
       description: "User ID of the identity verification's owner",
       type: GraphQLString,
       resolve: ({ user_id }) => user_id,
+    },
+    name: {
+      description: "Name of the identity verification's owner",
+      type: GraphQLString,
+      resolve: ({ name }) => name,
+    },
+    email: {
+      description: "Email of the identity verification's owner",
+      type: GraphQLString,
+      resolve: ({ email }) => email,
     },
     invitationExpiresAt: dateFieldForVerificationExpiresAt,
     overrides: {

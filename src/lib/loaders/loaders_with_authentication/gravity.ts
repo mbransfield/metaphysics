@@ -30,6 +30,7 @@ export default (accessToken, userID, opts) => {
       {},
       { headers: true }
     ),
+    mergeArtistLoader: gravityLoader("artists/merge", {}, { method: "POST" }),
     artworkLoader: gravityLoader((id) => `artwork/${id}`),
     notificationPreferencesLoader: gravityLoader("notification_preferences"),
     updateNotificationPreferencesLoader: gravityLoader(
@@ -84,6 +85,11 @@ export default (accessToken, userID, opts) => {
     creditCardLoader: gravityLoader((id) => `credit_card/${id}`),
     deleteSavedArtworkLoader: gravityLoader(
       (id) => `collection/saved-artwork/artwork/${id}`,
+      {},
+      { method: "DELETE" }
+    ),
+    deleteBankAccountLoader: gravityLoader(
+      (id) => `me/bank_account/${id}`,
       {},
       { method: "DELETE" }
     ),
@@ -215,6 +221,11 @@ export default (accessToken, userID, opts) => {
       { method: "POST" }
     ),
     lotStandingLoader: gravityLoader("me/lot_standings", { size: 100 }),
+    meBankAccountsLoader: gravityLoader(
+      "me/bank_accounts",
+      {},
+      { headers: true }
+    ),
     meBidderPositionLoader: gravityLoader(
       (id) => `me/bidder_position/${id}/`,
       {},

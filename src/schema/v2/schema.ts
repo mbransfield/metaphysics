@@ -13,6 +13,7 @@ import Articles from "./articles"
 import ArticlesConnection from "./articlesConnection"
 import Artist from "./artist"
 import Artists, { artistsConnection } from "./artists"
+import { mergeArtistsMutation } from "./artists/mergeArtistsMutation"
 import Artwork from "./artwork"
 import { ArtistArtworkGridType } from "./artwork/artworkContextGrids/ArtistArtworkGrid"
 import { AuctionArtworkGridType } from "./artwork/artworkContextGrids/AuctionArtworkGrid"
@@ -63,6 +64,7 @@ import { submitInquiryRequestMutation } from "./me/conversation/submit_inquiry_r
 import UpdateConversationMutation from "./me/conversation/update_conversation_mutation"
 import createBidderMutation from "./me/create_bidder_mutation"
 import createCreditCardMutation from "./me/create_credit_card_mutation"
+import { deleteBankAccountMutation } from "./me/delete_bank_account_mutation"
 import { deleteCreditCardMutation } from "./me/delete_credit_card_mutation"
 import FollowArtist from "./me/follow_artist"
 import FollowGene from "./me/follow_gene"
@@ -272,6 +274,7 @@ export default new GraphQLSchema({
       createCreditCard: createCreditCardMutation,
       createGeminiEntryForAsset: CreateGeminiEntryForAsset,
       createUserInterest: createUserInterestMutation,
+      deleteBankAccount: deleteBankAccountMutation,
       deleteCreditCard: deleteCreditCardMutation,
       deleteMyAccountMutation: deleteUserAccountMutation,
       deleteUserInterest: deleteUserInterestMutation,
@@ -281,6 +284,7 @@ export default new GraphQLSchema({
       followProfile: FollowProfile,
       followShow: FollowShow,
       linkAuthentication: linkAuthenticationMutation,
+      mergeArtists: mergeArtistsMutation,
       myCollectionCreateArtwork: myCollectionCreateArtworkMutation,
       myCollectionUpdateArtwork: myCollectionUpdateArtworkMutation,
       myCollectionDeleteArtwork: myCollectionDeleteArtworkMutation,

@@ -1,7 +1,7 @@
 import Format, { FormatType } from "schema/v2/input_fields/format"
 import { GraphQLString, GraphQLFieldConfig } from "graphql"
 import { isExisty, markdownToPlainText } from "lib/helpers"
-import marked from "marked"
+import { marked } from "marked"
 import { ResolverContext } from "types/graphql"
 
 type Value = string | null | undefined

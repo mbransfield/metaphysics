@@ -79,7 +79,7 @@
     "jwt-simple": "0.5.6",
     "lodash": "4.17.21",
     "longjohn": "0.2.12",
-    "marked": "2.0.1",
+    "marked": "^4.0.17",
     "memcached": "2.2.2",
     "moment": "2.29.3",
     "moment-timezone": "0.5.31",

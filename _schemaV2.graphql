@@ -15569,9 +15569,9 @@ type UpdateUserDefaultAddressPayload {
 input UpdateUserMutationInput {
   clientMutationId: String
   dataTransferOptOut: Boolean
-  email: String!
+  email: String
   id: String!
-  name: String!
+  name: String
   phone: String
 }
 

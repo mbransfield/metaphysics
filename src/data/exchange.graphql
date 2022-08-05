@@ -1616,6 +1616,11 @@ enum PaymentMethodEnum {
   CREDIT_CARD
 
   """
+  SEPA
+  """
+  SEPA_DEBIT
+
+  """
   US Bank Account
   """
   US_BANK_ACCOUNT
@@ -1635,7 +1640,7 @@ type Query {
   """
   Find balance of an account associated with a setup intent
   """
-  bankAccountBalance(setupIntentId: ID!): BankAccountBalance
+  bankAccountBalance(bankAccountId: ID, setupIntentId: ID): BankAccountBalance
 
   """
   Find list of competing orders

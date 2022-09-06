@@ -63,7 +63,33 @@ export const CollectorProfileType = new GraphQLObjectType<any, ResolverContext>(
 export const CollectorProfile: GraphQLFieldConfig<void, ResolverContext> = {
   type: CollectorProfileType,
   description: "A collector profile.",
-  resolve: (_root, _option, { collectorProfileLoader }) => {
+  args: {
+    userId: {
+      type: GraphQLString,
+      description: "If partner is requesting",
+    },
+  },
+  resolve: async (
+    _root,
+    option,
+    { collectorProfileLoader, partnerCollectorProfileLoader }
+  ) => {
+    // breadcrumb
+    console.log(option)
+    if (option.userId) {
+      // return fancy loader
+      const { body, headers } = await partnerCollectorProfileLoader?.({
+        userId: option.userId,
+      })
+      console.log("body", body)
+
+      console.log(headers)
+      console.log(body[0].owner)
+      //clean this up
+      return body[0]
+      // return partnerCollectorProfileLoader?.({userId: option.userId})
+    }
+
     return collectorProfileLoader?.()
   },
 }

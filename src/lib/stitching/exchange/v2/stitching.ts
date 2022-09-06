@@ -1,4 +1,11 @@
-import { GraphQLError, GraphQLSchema, Kind, SelectionSetNode } from "graphql"
+import {
+  GraphQLError,
+  GraphQLNonNull,
+  GraphQLSchema,
+  GraphQLString,
+  Kind,
+  SelectionSetNode,
+} from "graphql"
 import { amountSDL, amount } from "schema/v2/fields/money"
 import gql from "lib/gql"
 import { toGlobalId } from "graphql-relay"
@@ -294,6 +301,7 @@ export const exchangeStitchingEnvironment = ({
       sellerDetails: OrderParty
       creditCard: CreditCard
       paymentMethodDetails: PaymentMethodUnion
+  
       ${orderTotalsSDL.join("\n")}
     }
 

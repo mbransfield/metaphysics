@@ -10182,7 +10182,10 @@ type Me implements Node {
   collectorLevel: Int
 
   # A collector profile.
-  collectorProfile: CollectorProfileType
+  collectorProfile(
+    # If partner is requesting
+    userId: String
+  ): CollectorProfileType
 
   # A conversation, usually between a user and a partner
   conversation(
@@ -16055,7 +16058,10 @@ type User {
   cached: Int
 
   # A collector profile.
-  collectorProfile: CollectorProfileType
+  collectorProfile(
+    # If partner is requesting
+    userId: String
+  ): CollectorProfileType
   createdAt(
     format: String
 

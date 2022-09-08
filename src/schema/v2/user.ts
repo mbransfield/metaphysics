@@ -8,17 +8,26 @@ import {
   GraphQLInt,
 } from "graphql"
 import cached from "./fields/cached"
-import { InternalIDFields } from "./object_identification"
+import { InternalIDFields, NodeInterface } from "./object_identification"
 import { LocationType } from "schema/v2/location"
 import { ResolverContext } from "types/graphql"
-import { connectionWithCursorInfo } from "./fields/pagination"
+import {
+  connectionWithCursorInfo,
+  paginationResolver,
+} from "./fields/pagination"
 import { date } from "./fields/date"
 import { CollectorProfile } from "./CollectorProfile/collectorProfile"
 import { UserSaleProfile } from "./userSaleProfile"
 import { UserInterestConnection } from "./userInterests"
 import { pageable } from "relay-cursor-paging"
-import { convertConnectionArgsToGravityArgs } from "lib/helpers"
+import {
+  CatchCollectionNotFoundException,
+  convertConnectionArgsToGravityArgs,
+} from "lib/helpers"
 import { connectionFromArraySlice } from "graphql-relay"
+import { artworkConnection } from "./artwork"
+import { artistConnection } from "./artist"
+import { geneConnection } from "./gene"
 
 export const UserAdminNoteType = new GraphQLObjectType<any, ResolverContext>({
   name: "UserAdminNotes",
@@ -86,6 +95,7 @@ export const ProfileAccessField: GraphQLFieldConfig<any, ResolverContext> = {
 
 export const UserType = new GraphQLObjectType<any, ResolverContext>({
   name: "User",
+  interfaces: [NodeInterface],
   fields: () => ({
     ...InternalIDFields,
     cached,
@@ -156,7 +166,6 @@ export const UserType = new GraphQLObjectType<any, ResolverContext>({
           size,
           total_count: true,
         })
-
         const totalCount = parseInt(headers["x-total-count"] || "0", 10)
 
         return {
@@ -168,6 +177,72 @@ export const UserType = new GraphQLObjectType<any, ResolverContext>({
           }),
         }
       },
+    },
+    follows: {
+      type: new GraphQLObjectType({
+        name: "UserFollows",
+        fields: {
+          artistsConnection: {
+            type: artistConnection.connectionType,
+            args: pageable({}),
+            resolve: async ({ id }, args, { userArtistFollowsLoader }) => {
+              if (!userArtistFollowsLoader) {
+                throw new Error(
+                  "Loader not found. You must supply an X-Access-Token header."
+                )
+              }
+              const { page, size, offset } = convertConnectionArgsToGravityArgs(
+                args
+              )
+
+              const { body, headers } = await userArtistFollowsLoader(id, {
+                page,
+                size,
+                total_count: true,
+              })
+              const totalCount = parseInt(headers["x-total-count"] || "0", 10)
+              return paginationResolver({
+                totalCount,
+                offset,
+                page,
+                size,
+                body,
+                args,
+              })
+            },
+          },
+          genesConnection: {
+            type: geneConnection,
+            args: pageable({}),
+            resolve: async ({ id }, args, { userGeneFollowsLoader }) => {
+              if (!userGeneFollowsLoader) {
+                throw new Error(
+                  "Loader not found. You must supply an X-Access-Token header."
+                )
+              }
+              const { page, size, offset } = convertConnectionArgsToGravityArgs(
+                args
+              )
+
+              const { body, headers } = await userGeneFollowsLoader(id, {
+                page,
+                size,
+                total_count: true,
+              })
+              const totalCount = parseInt(headers["x-total-count"] || "0", 10)
+              return paginationResolver({
+                totalCount,
+                offset,
+                page,
+                size,
+                body,
+                args,
+              })
+            },
+          },
+        },
+      }),
+      resolve: (result) => result,
     },
     paddleNumber: {
       description: "The paddle number of the user",
@@ -229,6 +304,40 @@ export const UserType = new GraphQLObjectType<any, ResolverContext>({
       resolve: ({ receive_viewing_room_notification }) =>
         receive_viewing_room_notification,
     },
+    savedArtworksConnection: {
+      type: artworkConnection.connectionType,
+      args: pageable({}),
+      resolve: async ({ id }, args, { savedArtworksLoader }) => {
+        if (!savedArtworksLoader) return null
+
+        const { page, size, offset } = convertConnectionArgsToGravityArgs(args)
+
+        const gravityOptions = {
+          page,
+          size,
+          user_id: id,
+          private: true,
+          total_count: true,
+          sort: "-position",
+        }
+
+        try {
+          const { body, headers } = await savedArtworksLoader(gravityOptions)
+
+          const totalCount = parseInt(headers["x-total-count"] || "0", 10)
+          return paginationResolver({
+            totalCount,
+            offset,
+            page,
+            size,
+            body,
+            args,
+          })
+        } catch (error) {
+          return CatchCollectionNotFoundException(error)
+        }
+      },
+    },
     userAlreadyExists: {
       description:
         "Check whether a user exists by email address before creating an account.",
@@ -272,3 +381,5 @@ export const UserField: GraphQLFieldConfig<void, ResolverContext> = {
 }
 
 export const UsersConnection = connectionWithCursorInfo({ nodeType: UserType })
+
+export default UserField

@@ -1,8 +1,57 @@
 import { runAuthenticatedQuery } from "schema/v2/test/utils"
 import gql from "lib/gql"
 import { HTTPError } from "lib/HTTPError"
+import { toGlobalId } from "graphql-relay"
 
 describe("User", () => {
+  it("implements the NodeInterface", async () => {
+    const query = gql`
+      {
+        user(id: "percy-mongo-id") {
+          id
+          internalID
+          name
+        }
+      }
+    `
+
+    const context = {
+      userByIDLoader: (data) => {
+        if (data !== "percy-mongo-id")
+          throw new Error("Unexpected invocation of loader")
+
+        return Promise.resolve({ id: "percy-mongo-id", name: "Percy Z" })
+      },
+    }
+
+    const expectedNodeID = toGlobalId("User", "percy-mongo-id")
+
+    const { user } = await runAuthenticatedQuery(query, context)
+
+    expect(user.id).toEqual(expectedNodeID)
+    expect(user.internalID).toEqual("percy-mongo-id")
+    expect(user.name).toEqual("Percy Z")
+
+    // Now check if can fetch via the `node` field
+    const nodeQuery = gql`
+      {
+        node(id: "${expectedNodeID}") {
+          __typename
+          ... on User {
+            internalID
+            name
+          }
+        }
+      }
+      `
+
+    const { node } = await runAuthenticatedQuery(nodeQuery, context)
+
+    expect(node.name).toEqual("Percy Z")
+    expect(node.internalID).toEqual("percy-mongo-id")
+    expect(node.__typename).toEqual("User")
+  })
+
   describe("userAlreadyExists", () => {
     it("returns true if a user exists", async () => {
       const foundUser = {
@@ -54,6 +103,104 @@ describe("User", () => {
       `
       const { user } = await runAuthenticatedQuery(query, { userByEmailLoader })
       expect(user.userAlreadyExists).toEqual(false)
+    })
+  })
+
+  describe("savedArtworksConnection", () => {
+    const query = `
+        {
+          user(id: "blah") {
+            savedArtworksConnection(first: 10) {
+              totalCount
+              edges {
+                node {
+                  title
+                }
+              }
+            }
+          }
+        }
+      `
+
+    const user = {
+      id: "blah",
+    }
+
+    const artworks = [
+      {
+        title: "Black Cat in Repose",
+      },
+      {
+        title: "Sleeping Cat in Sun",
+      },
+    ]
+
+    let context
+
+    beforeEach(() => {
+      context = {
+        userByIDLoader: () => {
+          return Promise.resolve(user)
+        },
+        savedArtworksLoader: () => {
+          return Promise.resolve({
+            body: artworks,
+            headers: { "x-total-count": "2" },
+          })
+        },
+      }
+    })
+
+    it("returns saved artworks for a user", async () => {
+      const {
+        user: {
+          savedArtworksConnection: { totalCount, edges },
+        },
+      } = await runAuthenticatedQuery(query, context)
+
+      expect(totalCount).toEqual(2)
+      expect(edges.length).toEqual(2)
+      expect(edges[0]).toEqual({
+        node: {
+          title: "Black Cat in Repose",
+        },
+      })
+      expect(edges[1]).toEqual({
+        node: {
+          title: "Sleeping Cat in Sun",
+        },
+      })
+    })
+
+    it("returns an empty connection w/ no error if the gravity request 404's", async () => {
+      context.savedArtworksLoader = () => {
+        return Promise.reject(new HTTPError("Not Found", 404))
+      }
+
+      const {
+        user: {
+          savedArtworksConnection: { totalCount, edges },
+        },
+      } = await runAuthenticatedQuery(query, context)
+
+      expect(totalCount).toEqual(0)
+      expect(edges).toEqual([])
+    })
+
+    it("throws an error if the gravity request errors and it's not a 404", async () => {
+      context.savedArtworksLoader = () => {
+        return Promise.reject(new HTTPError("Cats in the server room", 500))
+      }
+
+      expect.assertions(1)
+
+      try {
+        await runAuthenticatedQuery(query, context)
+        throw new Error("An error was not thrown but was expected to throw.")
+      } catch (error) {
+        // eslint-disable-next-line jest/no-conditional-expect, jest/no-try-expect
+        expect(error.message).toEqual("Cats in the server room")
+      }
     })
   })
 
@@ -141,7 +288,6 @@ describe("User", () => {
             }
           }
         }
-      
       `
 
       const user = {
@@ -205,6 +351,97 @@ describe("User", () => {
         node: {
           __typename: "Gene",
           name: "Catty Gene",
+        },
+      })
+    })
+  })
+
+  describe("follows", () => {
+    it("returns user follows", async () => {
+      const query = `
+        {
+          user(id: "abc") {
+            follows {
+              artistsConnection(first: 10) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+              genesConnection(first: 10) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      `
+
+      const user = {
+        id: "abc",
+      }
+
+      const artistFollows = [
+        {
+          name: "Frank Stella",
+        },
+        {
+          name: "Ed Ruscha",
+        },
+      ]
+
+      const geneFollows = [
+        {
+          name: "Emerging Art",
+        },
+      ]
+
+      const context = {
+        userByIDLoader: () => {
+          return Promise.resolve(user)
+        },
+        userArtistFollowsLoader: () => {
+          return Promise.resolve({
+            body: artistFollows,
+            headers: { "x-total-count": "2" },
+          })
+        },
+        userGeneFollowsLoader: () => {
+          return Promise.resolve({
+            body: geneFollows,
+            headers: { "x-total-count": "1" },
+          })
+        },
+      }
+
+      const {
+        user: {
+          follows: { artistsConnection, genesConnection },
+        },
+      } = await runAuthenticatedQuery(query, context)
+
+      expect(artistsConnection.edges.length).toEqual(2)
+      expect(genesConnection.edges.length).toEqual(1)
+
+      expect(artistsConnection.edges[0]).toEqual({
+        node: {
+          name: "Frank Stella",
+        },
+      })
+
+      expect(artistsConnection.edges[1]).toEqual({
+        node: {
+          name: "Ed Ruscha",
+        },
+      })
+
+      expect(genesConnection.edges[0]).toEqual({
+        node: {
+          name: "Emerging Art",
         },
       })
     })

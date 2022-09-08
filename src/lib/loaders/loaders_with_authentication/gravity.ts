@@ -374,10 +374,12 @@ export default (accessToken, userID, opts) => {
         entityIDKeyPath: "_id",
       }
     ),
-    savedArtworksLoader: gravityLoader("collection/saved-artwork/artworks", {
-      user_id: userID,
-      private: true,
-    }),
+    savedArtworksLoader: gravityLoader(
+      "collection/saved-artwork/artworks",
+      {},
+      { headers: true }
+    ),
+
     sendConfirmationEmailLoader: gravityLoader(
       "me/confirmation_emails",
       {},
@@ -455,6 +457,16 @@ export default (accessToken, userID, opts) => {
     meUserInterestsLoader: gravityLoader("me/user_interests"),
     userInterestsLoader: gravityLoader(
       (id) => `user_interests?user_id=${id}`,
+      {},
+      { headers: true }
+    ),
+    userArtistFollowsLoader: gravityLoader(
+      (id) => `user/${id}/follow/artists`,
+      {},
+      { headers: true }
+    ),
+    userGeneFollowsLoader: gravityLoader(
+      (id) => `user/${id}/follow/genes`,
       {},
       { headers: true }
     ),

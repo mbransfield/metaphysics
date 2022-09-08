@@ -11,6 +11,7 @@ import {
 } from "graphql"
 import { ResolverContext } from "types/graphql"
 import { userInterestType } from "../me/userInterests"
+import { collectionResolverFactory } from "../collection"
 
 export const CollectorProfileFields: GraphQLFieldConfigMap<
   any,
@@ -74,8 +75,9 @@ export const CollectorProfile: GraphQLFieldConfig<void, ResolverContext> = {
     option,
     { collectorProfileLoader, partnerCollectorProfileLoader }
   ) => {
+    console.log("in collector profile!!")
     // breadcrumb
-    console.log(option)
+    // console.log(option)
     if (option.userId) {
       // return fancy loader
       const { body, headers } = await partnerCollectorProfileLoader?.({

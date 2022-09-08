@@ -8,7 +8,7 @@ import {
 } from "graphql"
 import { amountSDL, amount } from "schema/v2/fields/money"
 import gql from "lib/gql"
-import { toGlobalId } from "graphql-relay"
+import { connectionFromArraySlice, toGlobalId } from "graphql-relay"
 import { delegateToSchema } from "@graphql-tools/delegate"
 import { ArtworkVersionType } from "schema/v2/artwork_version"
 import { WrapQuery } from "graphql-tools"
@@ -65,6 +65,7 @@ export const exchangeStitchingEnvironment = ({
           ... on CommerceUser {
             __typename
             id
+
           }
           ... on CommercePartner {
             __typename
@@ -102,6 +103,7 @@ export const exchangeStitchingEnvironment = ({
             // Re-jigger the type systems back into place, as right now
             // it is considered a CommerceUser and clients will reject it.
             .then((response) => {
+              console.log(response)
               response.__typename =
                 typename === "CommerceUser" ? "User" : "Partner"
               return response
@@ -156,6 +158,8 @@ export const exchangeStitchingEnvironment = ({
     `,
 
     resolve: async (parent, _args, context, info) => {
+      console.log("parent", parent)
+      console.log("----------")
       const { creditCardId, bankAccountId, paymentMethod } = parent
 
       if (paymentMethod === "CREDIT_CARD" && Boolean(creditCardId)) {
@@ -227,6 +231,58 @@ export const exchangeStitchingEnvironment = ({
       },
     },
   }
+  //  Experiment ----
+  const collectorProfileResolver = {
+    commerceCollectorProfile: {
+      fragment: gql`
+        fragment CommerceOrderCommerceCollectorProfile on CommerceOrder {
+          buyer {
+            __typename
+            ... on User {
+              id
+            }
+          }
+        }
+      `,
+      resolve: async (parent, _args, context, info) => {
+        console.log("please help")
+
+        const { partnerCollectorProfileLoader } = context
+        if (!parent.buyerId || !partnerCollectorProfileLoader) return null
+
+        const userId = parent.buyerId
+        // const id = parent[to].id
+        console.log("user id", userId)
+        console.log("FARTS")
+        try {
+          // PS this loader might return an array
+          const { body, headers } = partnerCollectorProfileLoader(userId)
+
+          // console.log('inside the try')
+          console.log("body", body[0])
+          // console.log("info", info)
+        } catch (e) {
+          console.log("error", e)
+          throw new GraphQLError(
+            `[metaphysics @ exchange/v2/stitching] CollectorProfile not found`
+          )
+        }
+
+        const farts = await info.mergeInfo.delegateToSchema({
+          schema: localSchema,
+          operation: "query",
+          fieldName: "commerceCollectorProfile",
+          args: { userId },
+          context,
+          info,
+          transforms: exchangeSchema.transforms,
+        })
+
+        console.log(farts)
+        return farts
+      },
+    },
+  }
 
   // Map the totals array to a set of resolvers that call the amount function
   // the type param is only used for the fragment name
@@ -280,6 +336,7 @@ export const exchangeStitchingEnvironment = ({
       creditCard: CreditCard
       paymentMethodDetails: PaymentMethodUnion
       conversation: Conversation
+      commerceCollectorProfile: CollectorProfileType
 
       ${orderTotalsSDL.join("\n")}
     }
@@ -291,6 +348,7 @@ export const exchangeStitchingEnvironment = ({
       paymentMethodDetails: PaymentMethodUnion
       isInquiryOrder: Boolean!
       conversation: Conversation
+      commerceCollectorProfile: CollectorProfileType
 
       ${orderTotalsSDL.join("\n")}
       ${amountSDL("offerTotal")}
@@ -301,6 +359,7 @@ export const exchangeStitchingEnvironment = ({
       sellerDetails: OrderParty
       creditCard: CreditCard
       paymentMethodDetails: PaymentMethodUnion
+      commerceCollectorProfile: CollectorProfileType
   
       ${orderTotalsSDL.join("\n")}
     }
@@ -389,6 +448,7 @@ export const exchangeStitchingEnvironment = ({
         sellerDetails: sellerDetailsResolver,
         creditCard: creditCardResolver,
         paymentMethodDetails: paymentMethodDetailsResolver,
+        commerceCollectorProfile: collectorProfileResolver,
       },
       CommerceOfferOrder: {
         ...totalsResolvers("CommerceOfferOrder", orderTotals),
@@ -396,6 +456,7 @@ export const exchangeStitchingEnvironment = ({
         sellerDetails: sellerDetailsResolver,
         creditCard: creditCardResolver,
         paymentMethodDetails: paymentMethodDetailsResolver,
+        commerceCollectorProfile: collectorProfileResolver,
         ...inquiryOrderResolvers,
       },
       CommerceLineItem: {
@@ -515,6 +576,7 @@ export const exchangeStitchingEnvironment = ({
         sellerDetails: sellerDetailsResolver,
         creditCard: creditCardResolver,
         paymentMethodDetails: paymentMethodDetailsResolver,
+        commerceCollectorProfile: collectorProfileResolver,
       },
       CommerceOffer: {
         ...totalsResolvers("CommerceOffer", offerAmountFields),

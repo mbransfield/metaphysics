@@ -90,7 +90,7 @@ export const UserType = new GraphQLObjectType<any, ResolverContext>({
     ...InternalIDFields,
     cached,
     adminNotes: UserAdminNotesField,
-    collectorProfile: CollectorProfile,
+    collectorProfile: CollectorProfile, // breadcrumb - what about user ids argument? would it break me/collector
     name: {
       description: "The given name of the user.",
       type: new GraphQLNonNull(GraphQLString),
@@ -261,6 +261,7 @@ export const UserField: GraphQLFieldConfig<void, ResolverContext> = {
       : userByEmailLoader(option)
     return promise
       .then((result) => {
+        // breadcrumb
         return result
       })
       .catch((err) => {

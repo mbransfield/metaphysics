@@ -1,14 +1,7 @@
-import {
-  GraphQLError,
-  GraphQLNonNull,
-  GraphQLSchema,
-  GraphQLString,
-  Kind,
-  SelectionSetNode,
-} from "graphql"
+import { GraphQLError, GraphQLSchema, Kind, SelectionSetNode } from "graphql"
 import { amountSDL, amount } from "schema/v2/fields/money"
 import gql from "lib/gql"
-import { connectionFromArraySlice, toGlobalId } from "graphql-relay"
+import { toGlobalId } from "graphql-relay"
 import { delegateToSchema } from "@graphql-tools/delegate"
 import { ArtworkVersionType } from "schema/v2/artwork_version"
 import { WrapQuery } from "graphql-tools"
@@ -233,54 +226,57 @@ export const exchangeStitchingEnvironment = ({
   }
   //  Experiment ----
   const collectorProfileResolver = {
-    commerceCollectorProfile: {
-      fragment: gql`
-        fragment CommerceOrderCommerceCollectorProfile on CommerceOrder {
-          buyer {
-            __typename
-            ... on User {
-              id
-            }
+    fragment: gql`
+      fragment CommerceOrderCommerceCollectorProfile on CommerceOrder {
+        buyer {
+          __typename
+          ... on User {
+            id
           }
         }
-      `,
-      resolve: async (parent, _args, context, info) => {
-        console.log("please help")
+      }
+    `,
+    resolve: async (parent, _args, context, info) => {
+      console.log("please help")
 
-        const { partnerCollectorProfileLoader } = context
-        if (!parent.buyerId || !partnerCollectorProfileLoader) return null
+      const { partnerCollectorProfileLoader } = context
+      if (!parent.buyer.id || !partnerCollectorProfileLoader) return null
 
-        const userId = parent.buyerId
-        // const id = parent[to].id
-        console.log("user id", userId)
-        console.log("FARTS")
-        try {
-          // PS this loader might return an array
-          const { body, headers } = partnerCollectorProfileLoader(userId)
+      const userId = parent.buyer.id
+      // const id = parent[to].id
+      console.log("user id", userId)
 
-          // console.log('inside the try')
-          console.log("body", body[0])
-          // console.log("info", info)
-        } catch (e) {
-          console.log("error", e)
-          throw new GraphQLError(
-            `[metaphysics @ exchange/v2/stitching] CollectorProfile not found`
-          )
-        }
+      const { body: profiles } = await partnerCollectorProfileLoader({ userId })
+      console.log("FARTS", profiles[0])
 
-        const farts = await info.mergeInfo.delegateToSchema({
-          schema: localSchema,
-          operation: "query",
-          fieldName: "commerceCollectorProfile",
-          args: { userId },
-          context,
-          info,
-          transforms: exchangeSchema.transforms,
-        })
+      return profiles[0]
 
-        console.log(farts)
-        return farts
-      },
+      // try {
+      //   // PS this loader might return an array
+      //   const { body, headers } = partnerCollectorProfileLoader(userId)
+
+      //   // console.log('inside the try')
+      //   console.log("body", body[0])
+      //   // console.log("info", info)
+      // } catch (e) {
+      //   console.log("error", e)
+      //   throw new GraphQLError(
+      //     `[metaphysics @ exchange/v2/stitching] CollectorProfile not found`
+      //   )
+      // }
+
+      // const farts = await info.mergeInfo.delegateToSchema({
+      //   schema: localSchema,
+      //   operation: "query",
+      //   fieldName: "commerceCollectorProfile",
+      //   args: { userId },
+      //   context,
+      //   info,
+      //   transforms: exchangeSchema.transforms,
+      // })
+
+      // console.log(farts)
+      // return farts
     },
   }
 

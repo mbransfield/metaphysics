@@ -65,7 +65,11 @@ export default (accessToken, userID, opts) => {
     collectionLoader: gravityLoader((id) => `collection/${id}`, {
       user_id: userID,
     }),
-    collectorProfileLoader: gravityLoader("me/collector_profile"),
+    collectorProfilesLoader: gravityLoader(
+      "collector_profiles",
+      {},
+      { headers: true }
+    ),
     createAccountRequestLoader: gravityLoader(
       "account_requests",
       {},
@@ -238,6 +242,7 @@ export default (accessToken, userID, opts) => {
     ),
     meBidderPositionsLoader: gravityLoader("me/bidder_positions"),
     meBiddersLoader: gravityLoader("me/bidders"),
+    meCollectorProfileLoader: gravityLoader("me/collector_profile"),
     meCreditCardsLoader: gravityLoader(
       "me/credit_cards",
       {},
@@ -311,6 +316,20 @@ export default (accessToken, userID, opts) => {
     ),
     partnerArtworksAllLoader: gravityLoader(
       (id) => `partner/${id}/artworks/all`,
+      {},
+      { headers: true }
+    ),
+    partnerArtistsAllLoader: gravityLoader(
+      (id) => `partner/${id}/partner_artists/all`,
+      {},
+      { headers: true }
+    ),
+    partnerShowArtworksLoader: gravityLoader<
+      any,
+      { partner_id: string; show_id: string }
+    >(
+      ({ partner_id, show_id }) =>
+        `partner/${partner_id}/show/${show_id}/artworks`,
       {},
       { headers: true }
     ),

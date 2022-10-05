@@ -230,6 +230,7 @@ export default (accessToken, userID, opts) => {
       { method: "POST" }
     ),
     lotStandingLoader: gravityLoader("me/lot_standings", { size: 100 }),
+    matchUsersLoader: gravityLoader("match/users", {}, { headers: true }),
     meBankAccountsLoader: gravityLoader(
       "me/bank_accounts",
       {},
@@ -304,6 +305,21 @@ export default (accessToken, userID, opts) => {
       { method: "PUT" }
     ),
     notificationsFeedLoader: gravityLoader("me/notifications/feed"),
+    partnerSearchShowsLoader: gravityLoader(
+      (id) => `/match/partner/${id}/shows`,
+      {},
+      { headers: true }
+    ),
+    partnerSearchArtistsLoader: gravityLoader(
+      (id) => `/match/partner/${id}/artists`,
+      {},
+      { headers: true }
+    ),
+    partnerSearchArtworksLoader: gravityLoader(
+      (id) => `/match/partner/${id}/artworks`,
+      {},
+      { headers: true }
+    ),
     partnerAllLoader: gravityLoader((id) => `partner/${id}/all`),
     partnerArtistDocumentsLoader: gravityLoader<
       any,
@@ -471,6 +487,14 @@ export default (accessToken, userID, opts) => {
     ),
     userSaleProfileLoader: gravityLoader((id) => `user_sale_profile/${id}`),
     userAdminNotesLoader: gravityLoader((id) => `user/${id}/admin_notes`),
+    deleteUserAdminNoteLoader: gravityLoader<
+      any,
+      { id: string; admin_note_id: string }
+    >(
+      ({ id, admin_note_id }) => `user/${id}/admin_note/${admin_note_id}`,
+      {},
+      { method: "DELETE" }
+    ),
     createUserAdminNoteLoader: gravityLoader(
       (id) => `/user/${id}/admin_note`,
       {},

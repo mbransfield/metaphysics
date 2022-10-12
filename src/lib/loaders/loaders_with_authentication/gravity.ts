@@ -524,12 +524,12 @@ export default (accessToken, userID, opts) => {
       { headers: true }
     ),
     purchasesLoader: gravityLoader("purchases", {}, { headers: true }),
-    deleteUserRole: gravityLoader<any, { id: string; role_type: string }>(
+    deleteUserRoleLoader: gravityLoader<any, { id: string; role_type: string }>(
       ({ id, role_type }) => `user/${id}/roles/${role_type}`,
       {},
       { method: "DELETE" }
     ),
-    addUserRole: gravityLoader<any, { id: string; role_type: string }>(
+    addUserRoleLoader: gravityLoader<any, { id: string; role_type: string }>(
       ({ id, role_type }) => `user/${id}/roles/${role_type}`,
       {},
       { method: "POST" }
@@ -542,6 +542,11 @@ export default (accessToken, userID, opts) => {
         `user/${id}/access_controls?model=${access_control_model}`,
       {},
       { method: "GET" }
+    ),
+    userAccessControlLoaderAllProperties: gravityLoader<any, { id: string }>(
+      (id) => `user/${id}/access_controls`,
+      {},
+      { headers: true }
     ),
   }
 }

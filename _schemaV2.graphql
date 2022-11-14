@@ -7944,6 +7944,8 @@ type Fair implements EntityWithFilterArtworksConnectionInterface & Node {
     # Get only articles with 'standard', 'feature', 'series' or 'video' layouts.
     inEditorialFeed: Boolean
     last: Int
+    page: Int
+    size: Int
     sort: ArticleSorts
   ): ArticleConnection
   artistsConnection(
@@ -11541,6 +11543,7 @@ input NotificationPreferenceInput {
 enum NotificationTypesEnum {
   ARTWORK_ALERT
   ARTWORK_PUBLISHED
+  PARTNER_SHOW_OPENED
   VIEWING_ROOM_PUBLISHED
 }
 
@@ -16547,6 +16550,9 @@ type UserAdminNotes {
     # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
     timezone: String
   ): String
+
+  # The user who created the note
+  creator: User
 
   # A globally unique ID.
   id: ID!

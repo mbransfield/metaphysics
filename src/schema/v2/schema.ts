@@ -75,6 +75,7 @@ import { myCollectionCreateArtworkMutation } from "./me/myCollectionCreateArtwor
 import { myCollectionDeleteArtworkMutation } from "./me/myCollectionDeleteArtworkMutation"
 import { myCollectionUpdateArtworkMutation } from "./me/myCollectionUpdateArtworkMutation"
 import saveArtworkMutation from "./me/saveArtworkMutation"
+import dislikeArtworkMutation from "./me/dislikeArtworkMutation"
 import { sendConfirmationEmailMutation } from "./me/sendConfirmationEmailMutation"
 import UpdateCollectorProfile from "./me/update_collector_profile"
 import UpdateCollectorProfileWithID from "./CollectorProfile/mutations/updateCollectorProfileWithID"
@@ -89,11 +90,11 @@ import { deleteCollectorProfileIconMutation } from "./me/deleteCollectorProfileI
 import ObjectIdentification from "./object_identification"
 import { OrderedSet } from "./OrderedSet"
 import OrderedSets from "./ordered_sets"
-import Partner from "./partner"
-import PartnerArtworks from "./partnerArtworks"
+import Partner from "schema/v2/partner/partner"
+import PartnerArtworks from "./partner/partnerArtworks"
 import Profile from "./profile"
-// import Partner from "./partner"
-import { PartnersConnection } from "./partners"
+// import Partner from "schema/v2/partner/partner"
+import { PartnersConnection } from "./partner/partners"
 import { RequestLocationField } from "./requestLocation"
 import { ReverseImageSearch } from "./reverseImageSearch"
 import { endSaleMutation } from "./sale/end_sale_mutation"
@@ -109,8 +110,8 @@ import { Shows } from "./shows"
 import { startIdentityVerificationMutation } from "./startIdentityVerificationMutation"
 import StaticContent from "./static_content"
 import System from "./system"
-import PartnerCategory from "./partner_category"
-import PartnerCategories from "./partner_categories"
+import PartnerCategory from "./partner/partner_category"
+import PartnerCategories from "./partner/partner_categories"
 // import SuggestedGenes from "./suggested_genes"
 import { TagField } from "./tag"
 import { TargetSupply } from "./TargetSupply"
@@ -150,8 +151,8 @@ import { deleteFeatureFlagMutation } from "./admin/mutations/deleteFeatureFlagMu
 import { updateFeatureFlagMutation } from "./admin/mutations/updateFeatureFlagMutation"
 import { toggleFeatureFlagMutation } from "./admin/mutations/toggleFeatureFlagMutation"
 import { MatchConnection } from "./Match"
-import { PartnerArtistDocumentsConnection } from "./partnerArtistDocumentsConnection"
-import { PartnerShowDocumentsConnection } from "./partnerShowDocumentsConnection"
+import { PartnerArtistDocumentsConnection } from "./partner/partnerArtistDocumentsConnection"
+import { PartnerShowDocumentsConnection } from "./partner/partnerShowDocumentsConnection"
 import { bulkUpdatePartnerArtworksMutation } from "./bulkUpdatePartnerArtworksMutation"
 import { NotificationsConnection } from "./notifications"
 import { markAllNotificationsAsReadMutation } from "./me/mark_all_notifications_as_read_mutation"
@@ -298,6 +299,7 @@ export default new GraphQLSchema({
       deleteMyAccountMutation: deleteUserAccountMutation,
       deleteUserInterest: deleteUserInterestMutation,
       deleteUserRole: deleteUserRoleMutation,
+      dislikeArtwork: dislikeArtworkMutation,
       endSale: endSaleMutation,
       followArtist: FollowArtist,
       followGene: FollowGene,

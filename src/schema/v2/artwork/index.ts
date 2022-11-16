@@ -51,7 +51,7 @@ import {
   NodeInterface,
   SlugAndInternalIDFields,
 } from "schema/v2/object_identification"
-import Partner from "schema/v2/partner"
+import Partner from "schema/v2/partner/partner"
 import Sale from "schema/v2/sale"
 import SaleArtwork from "schema/v2/sale_artwork"
 import { Searchable } from "schema/v2/searchable"
@@ -855,6 +855,15 @@ export const ArtworkType = new GraphQLObjectType<any, ResolverContext>({
         resolve: ({ _id }, {}, { savedArtworkLoader }) => {
           if (!savedArtworkLoader) return false
           return savedArtworkLoader(_id).then(({ is_saved }) => is_saved)
+        },
+      },
+      isDisliked: {
+        type: new GraphQLNonNull(GraphQLBoolean),
+        resolve: ({ _id }, {}, { dislikedArtworkLoader }) => {
+          if (!dislikedArtworkLoader) return false
+          return dislikedArtworkLoader(_id).then(
+            ({ is_disliked }) => is_disliked
+          )
         },
       },
       isShareable: {

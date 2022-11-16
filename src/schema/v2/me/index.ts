@@ -29,9 +29,9 @@ import { BidderPosition } from "./bidder_position"
 import BidderPositions from "./bidder_positions"
 import BidderStatus from "./bidder_status"
 import { CollectorProfile } from "../CollectorProfile/collectorProfile"
-import Conversation from "./conversation"
-import Invoice from "./conversation/invoice"
-import Conversations from "./conversations"
+import Conversation from "schema/v2/conversation"
+import Invoice from "schema/v2/conversation/invoice"
+import Conversations from "schema/v2/conversation/conversations"
 import { CreditCards } from "./credit_cards"
 import { followedProfiles } from "./followedProfiles"
 import FollowedArtists from "./followed_artists"
@@ -390,12 +390,17 @@ export const meType = new GraphQLObjectType<any, ResolverContext>({
     unreadConversationCount: {
       type: new GraphQLNonNull(GraphQLInt),
       description: "The count of conversations with unread messages.",
-      resolve: (_root, _options, { conversationsLoader }) => {
+      resolve: (_root, _options, { conversationsLoader, userID }) => {
         if (!conversationsLoader) return 0
         const expand = ["total_unread_count"]
-        return conversationsLoader({ page: 1, size: 0, expand }).then(
-          ({ total_unread_count }) => total_unread_count
-        )
+        return conversationsLoader({
+          page: 1,
+          size: 0,
+          expand,
+          from_id: userID,
+          from_type: "User",
+          has_message: true,
+        }).then(({ total_unread_count }) => total_unread_count)
       },
     },
     watchedLotConnection: WatchedLotConnection,

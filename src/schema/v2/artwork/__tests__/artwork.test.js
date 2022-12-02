@@ -4,7 +4,7 @@ import { assign } from "lodash"
 import moment from "moment"
 import { getMicrofunnelDataByArtworkInternalID } from "schema/v2/artist/targetSupply/utils/getMicrofunnelData"
 import { runQuery } from "schema/v2/test/utils"
-import { BID_TAXES_DOC_URL, CHECKOUT_TAXES_DOC_URL } from "../taxInfo"
+import { CHECKOUT_TAXES_DOC_URL } from "../taxInfo"
 
 jest.mock("schema/v2/artist/targetSupply/utils/getMicrofunnelData")
 
@@ -2127,7 +2127,7 @@ describe("Artwork type", () => {
         expect(data).toEqual({
           artwork: {
             attributionClass: {
-              shortDescription: "This is a unique work",
+              shortDescription: "Unique work",
             },
           },
         })
@@ -2148,7 +2148,7 @@ describe("Artwork type", () => {
         expect(data).toEqual({
           artwork: {
             attributionClass: {
-              shortArrayDescription: ["This is", "a unique work"],
+              shortArrayDescription: ["", "Unique work"],
             },
           },
         })

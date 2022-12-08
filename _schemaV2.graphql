@@ -5555,6 +5555,34 @@ type ConsignmentEdge {
   node: Consignment
 }
 
+type ConsignmentInquiry {
+  # Email of inquirer
+  email: String!
+
+  # id of the ConsignmentInquiry
+  id: Int!
+
+  # Message of the inquirer
+  message: String!
+
+  # Name of the inquirer
+  name: String!
+
+  # Phone number of the inquirer
+  phoneNumber: String
+
+  # gravity user id if user is logged in
+  userId: String
+}
+
+type ConsignmentInquiryMutationFailure {
+  mutationError: GravityMutationError
+}
+
+type ConsignmentInquiryMutationSuccess {
+  consignmentInquiry: ConsignmentInquiry
+}
+
 # Consignment Offer
 type ConsignmentOffer {
   commissionPercentWhole: Int
@@ -6855,6 +6883,24 @@ type CreateBidderPayload {
   clientMutationId: String
 }
 
+input CreateConsignmentInquiryMutationInput {
+  clientMutationId: String
+  email: String!
+  message: String!
+  name: String!
+  phoneNumber: String
+  userId: String
+}
+
+type CreateConsignmentInquiryMutationPayload {
+  clientMutationId: String
+  consignmentInquiryOrError: CreateConsignmentInquiryMutationType
+}
+
+union CreateConsignmentInquiryMutationType =
+    ConsignmentInquiryMutationFailure
+  | ConsignmentInquiryMutationSuccess
+
 input CreateGeminiEntryForAssetInput {
   clientMutationId: String
 
@@ -7097,6 +7143,36 @@ union createUserAdminNoteResponseOrError =
 
 type createUserAdminNoteSuccess {
   adminNote: UserAdminNotes
+}
+
+type createUserInterestForUserFailure {
+  mutationError: GravityMutationError
+}
+
+input CreateUserInterestForUserInput {
+  # Optional body for a note.
+  body: String
+  category: UserInterestCategory!
+  clientMutationId: String
+  interestId: String!
+  interestType: UserInterestInterestType!
+  ownerType: UserInterestOwnerType!
+  userId: String!
+}
+
+type CreateUserInterestForUserPayload {
+  clientMutationId: String
+
+  # On success: UserInterest. On failure: MutationError.
+  userInterestOrError: createUserInterestForUserResponseOrError
+}
+
+union createUserInterestForUserResponseOrError =
+    createUserInterestForUserFailure
+  | createUserInterestForUserSuccess
+
+type createUserInterestForUserSuccess {
+  userInterest: UserInterest
 }
 
 input CreateUserInterestMutationInput {
@@ -7442,6 +7518,32 @@ type DeleteUserIconPayload {
   iconOrError: UserIconDeletionMutationType
 }
 
+type deleteUserInterestForUserFailure {
+  mutationError: GravityMutationError
+}
+
+input DeleteUserInterestForUserInput {
+  clientMutationId: String
+
+  # The ID of the UserInterest to delete.
+  id: String!
+}
+
+type DeleteUserInterestForUserPayload {
+  clientMutationId: String
+
+  # On success: UserInterest. On failure: MutationError.
+  userInterestOrError: deleteUserInterestForUserResponseOrError
+}
+
+union deleteUserInterestForUserResponseOrError =
+    deleteUserInterestForUserFailure
+  | deleteUserInterestForUserSuccess
+
+type deleteUserInterestForUserSuccess {
+  userInterest: UserInterest
+}
+
 input DeleteUserInterestMutationInput {
   anonymousSessionId: String
   clientMutationId: String
@@ -7649,6 +7751,9 @@ input EditableLocation {
 
   # The city the location is based in
   city: String
+
+  # The optional location coordinates. [lat, lng]
+  coordinates: [Float!]
 
   # The county the location is based in
   country: String
@@ -10990,6 +11095,11 @@ type Mutation {
 
   # Creates a bidder position
   createBidderPosition(input: BidderPositionInput!): BidderPositionPayload
+
+  # Make inquiry about consignments
+  createConsignmentInquiry(
+    input: CreateConsignmentInquiryMutationInput!
+  ): CreateConsignmentInquiryMutationPayload
   createConsignmentOffer(
     # Parameters for CreateOfferMutation
     input: CreateOfferMutationInput!
@@ -11039,6 +11149,11 @@ type Mutation {
   createUserInterest(
     input: CreateUserInterestMutationInput!
   ): CreateUserInterestMutationPayload
+
+  # Creates a UserInterest for a user.
+  createUserInterestForUser(
+    input: CreateUserInterestForUserInput!
+  ): CreateUserInterestForUserPayload
   createViewingRoom(input: CreateViewingRoomInput!): CreateViewingRoomPayload
 
   # Deletes an image from an artwork in my collection
@@ -11071,6 +11186,11 @@ type Mutation {
   deleteUserInterest(
     input: DeleteUserInterestMutationInput!
   ): DeleteUserInterestMutationPayload
+
+  # Delete a UserInterest.
+  deleteUserInterestForUser(
+    input: DeleteUserInterestForUserInput!
+  ): DeleteUserInterestForUserPayload
 
   # Delete a role associated with a user
   deleteUserRole(
@@ -14444,7 +14564,10 @@ type SaleArtwork implements ArtworkEdgeInterface & Node {
   isWatching: Boolean
   isWithReserve: Boolean
   lotID: String
-  lotLabel: String
+  lotLabel(
+    # Whether to trim anything past the first alphanumeric chunk
+    trim: Boolean = false
+  ): String
   lotState: CausalityLotState
   lowEstimate: SaleArtworkLowEstimate
   minimumNextBid: SaleArtworkMinimumNextBid
@@ -16845,6 +16968,7 @@ type UserInterest {
 
   # A type-specific ID.
   internalID: ID!
+  ownerType: UserInterestOwnerType
 }
 
 enum UserInterestCategory {
@@ -16880,6 +17004,7 @@ type UserInterestEdge {
 
   # The item at the end of the edge
   node: UserInterestInterest
+  ownerType: String
 }
 
 union UserInterestInterest = Artist | Gene
@@ -16887,6 +17012,11 @@ union UserInterestInterest = Artist | Gene
 enum UserInterestInterestType {
   ARTIST
   GENE
+}
+
+enum UserInterestOwnerType {
+  COLLECTOR_PROFILE
+  USER_SALE_PROFILE
 }
 
 # A connection to a list of items.

@@ -1,17 +1,5 @@
-import config from "config"
-import { configureImageServices, ResizeMode } from "@artsy/img"
-
-const { GEMINI_ENDPOINT } = config
-
-const services = configureImageServices({
-  gemini: {
-    endpoint: GEMINI_ENDPOINT!,
-  },
-})
-
-const DEFAULT_1X_QUALITY = 80
-const DEFAULT_2X_QUALITY = 50
-export const DEFAULT_SRCSET_QUALITY = [DEFAULT_1X_QUALITY, DEFAULT_2X_QUALITY]
+import { ResizeMode } from "@artsy/img"
+import { services, DEFAULT_1X_QUALITY } from "./config"
 
 interface Gemini {
   src: string

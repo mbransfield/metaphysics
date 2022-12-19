@@ -3742,6 +3742,7 @@ type CommerceBuyOrder implements CommerceOrder {
   buyer: CommerceOrderPartyUnion!
   buyerDetails: OrderParty
   buyerPhoneNumber: String
+  buyerPhoneNumberCountryCode: String
   buyerTotal(
     decimal: String = "."
 
@@ -4467,6 +4468,7 @@ type CommerceOfferOrder implements CommerceOrder {
   buyerAction: CommerceBuyerOfferActionEnum
   buyerDetails: OrderParty
   buyerPhoneNumber: String
+  buyerPhoneNumberCountryCode: String
   buyerTotal(
     decimal: String = "."
 
@@ -4698,6 +4700,7 @@ interface CommerceOrder {
   buyer: CommerceOrderPartyUnion!
   buyerDetails: OrderParty
   buyerPhoneNumber: String
+  buyerPhoneNumberCountryCode: String
   buyerTotal(
     decimal: String = "."
 
@@ -5002,6 +5005,9 @@ enum CommerceOrderSourceEnum {
 
   # The order was originated on a conversation
   inquiry
+
+  # The order was originated from a private sale
+  private_sale
 }
 
 type CommerceOrderStateChangedEvent implements CommerceEventInterface {
@@ -5263,6 +5269,7 @@ input CommerceSetShippingInput {
   fulfillmentType: CommerceOrderFulfillmentTypeEnum!
   id: ID!
   phoneNumber: String
+  phoneNumberCountryCode: String
   shipping: CommerceShippingAttributes
 }
 
@@ -7230,7 +7237,7 @@ input CreateUserInterestForUserInput {
 type CreateUserInterestForUserPayload {
   clientMutationId: String
 
-  # On success: UserInterest. On failure: MutationError.
+  # On success: UserInterest, User. On failure: MutationError.
   userInterestOrError: createUserInterestForUserResponseOrError
 }
 
@@ -7239,6 +7246,7 @@ union createUserInterestForUserResponseOrError =
   | createUserInterestForUserSuccess
 
 type createUserInterestForUserSuccess {
+  user: User
   userInterest: UserInterest
 }
 
@@ -7643,12 +7651,15 @@ input DeleteUserInterestForUserInput {
 
   # The ID of the UserInterest to delete.
   id: String!
+
+  # An optional ID of a User.
+  userId: String
 }
 
 type DeleteUserInterestForUserPayload {
   clientMutationId: String
 
-  # On success: UserInterest. On failure: MutationError.
+  # On success: UserInterest and optionally a User. On failure: MutationError.
   userInterestOrError: deleteUserInterestForUserResponseOrError
 }
 
@@ -7657,6 +7668,7 @@ union deleteUserInterestForUserResponseOrError =
   | deleteUserInterestForUserSuccess
 
 type deleteUserInterestForUserSuccess {
+  user: User
   userInterest: UserInterest
 }
 
@@ -14289,6 +14301,7 @@ type Quiz {
     page: Int
     size: Int
   ): QuizArtworkConnection
+  savedArtworks: [Artwork!]!
 }
 
 # A connection to a list of items.

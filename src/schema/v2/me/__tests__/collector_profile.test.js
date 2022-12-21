@@ -15,8 +15,8 @@ describe("Me", () => {
               intents
               privacy
               profession
-              emailConfirmed
-              identityVerified 
+              isEmailConfirmed
+              isIdentityVerified
               isActiveInquirer
               isActiveBidder
               collectorProfileArtists {
@@ -55,8 +55,8 @@ describe("Me", () => {
         intents: ["buy art & design"],
         privacy: "public",
         profession: "typer",
-        emailConfirmed: true,
-        identityVerified: true,
+        isEmailConfirmed: true,
+        isIdentityVerified: true,
         isActiveInquirer: true,
         isActiveBidder: false,
         collectorProfileArtists: [{ name: "Gumball" }, { name: "Edgar" }],
